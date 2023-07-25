@@ -1,4 +1,6 @@
 using CZTrails.Data;
+using CZTrails.Mappings;
+using CZTrails.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CZTrailsDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("CZTrailsConnectionString")));
+
+builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>(); //zde menim pouzivane repo (SQLRegion, InMemory,..)
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles)); //injects automapper, scans for profiles in the given file
 
 var app = builder.Build();
 
