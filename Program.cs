@@ -16,6 +16,7 @@ builder.Services.AddDbContext<CZTrailsDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("CZTrailsConnectionString")));
 
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>(); //zde menim pouzivane repo (SQLRegion, InMemory,..)
+builder.Services.AddScoped<ITrailRepository, SQLTrailRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles)); //injects automapper, scans for profiles in the given file
 
