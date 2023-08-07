@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "NZWalks": {
+    "NZtrails": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

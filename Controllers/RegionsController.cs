@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CZTrails.CustomActionFilters;
 using CZTrails.Data;
 using CZTrails.Models.Domain;
 using CZTrails.Models.DTO;
@@ -76,27 +77,36 @@ namespace CZTrails.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRegionRequestDTO createRegionRequestDTO) //we recieve a body from the client in the psot method
         {
-            //map dto to domain model
-            var regionDomainModel = mapper.Map<Region>(createRegionRequestDTO);
-            //use domain model to create region
-            
-            /*await dbContext.Regions.AddAsync(regionDomainModel); //pri pokusu o async tohoto radku generuje chybovy kod 500 -> upd: uz ne
-            await dbContext.SaveChangesAsync();*/
-            regionDomainModel = await regionRepository.CreateAsync(regionDomainModel);
 
-            //map domain model back to dto
-            var regionDto = mapper.Map<RegionDTO>(regionDomainModel);
+            if (ModelState.IsValid) //misto tohoto if-else zaobaleni lze pouzit custom validatemodel atribut, demonstrovano nasledovne
+            {
+                //map dto to domain model
+                var regionDomainModel = mapper.Map<Region>(createRegionRequestDTO);
+                //use domain model to create region
 
-            return CreatedAtAction(nameof(Get), new { id = regionDto.Id }, regionDto); //vraci hodnotu 201 pri uspesnem pridani - different form 200 tim, ze si v response headeru vygeneruju link kterym muzu primo pristoupit k vytvoreny polozce
-            /*return: {
-            "id": "2cd9d729-63a1-4219-1687-08db8aecf294",
-            "code": "PHA",
-            "name": "Hlavní město Praha",
-            "spz": "A"
-            }*/
+                /*await dbContext.Regions.AddAsync(regionDomainModel); //pri pokusu o async tohoto radku generuje chybovy kod 500 -> upd: uz ne
+                await dbContext.SaveChangesAsync();*/
+                regionDomainModel = await regionRepository.CreateAsync(regionDomainModel);
+
+                //map domain model back to dto
+                var regionDto = mapper.Map<RegionDTO>(regionDomainModel);
+
+                return CreatedAtAction(nameof(Get), new { id = regionDto.Id }, regionDto); //vraci hodnotu 201 pri uspesnem pridani - different form 200 tim, ze si v response headeru vygeneruju link kterym muzu primo pristoupit k vytvoreny polozce
+                /*return: {
+                "id": "2cd9d729-63a1-4219-1687-08db8aecf294",
+                "code": "PHA",
+                "name": "Hlavní město Praha",
+                "spz": "A"
+                }*/
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         [HttpPut]
+        [ValidateModel]
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDTO updateRegionRequestDTO)
         {

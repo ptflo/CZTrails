@@ -8,6 +8,6 @@
         public char Spz { get; set; }
 
         //navigation property
-        public  IEnumerable<Trail> Trails { get; set; } //one region can have multiple walks inside
+        public  IEnumerable<Trail> Trails { get; set; } //one region can have multiple trails inside
     }
 }

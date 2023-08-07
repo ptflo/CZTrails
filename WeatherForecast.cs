@@ -1,4 +1,4 @@
-namespace NZWalks
+namespace NZtrails
 {
     public class WeatherForecast
     {
