@@ -4,6 +4,7 @@ using CZTrails.Data;
 using CZTrails.Models.Domain;
 using CZTrails.Models.DTO;
 using CZTrails.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace CZTrails.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize] //pristup k regions controlleru pouze po prihlaseni
     public class RegionsController : ControllerBase
     {
         private readonly CZTrailsDbContext dbContext;
@@ -28,6 +30,7 @@ namespace CZTrails.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll() //async Task - asynchronous - muze bezet zaroven se zbytkem programu - efficiency
         {
             //get data from database
@@ -54,6 +57,7 @@ namespace CZTrails.Controllers
 
         [HttpGet]
         [Route("{id:Guid}")]
+        [Authorize] //funguje pro jakoukoliv prihlasenou roli
         //https://localhost:PORT/api/regions/{id}
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
@@ -75,6 +79,7 @@ namespace CZTrails.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Writer")]
         public async Task<IActionResult> Create([FromBody] CreateRegionRequestDTO createRegionRequestDTO) //we recieve a body from the client in the psot method
         {
 
@@ -106,8 +111,9 @@ namespace CZTrails.Controllers
         }
 
         [HttpPut]
-        [ValidateModel]
+        [ValidateModel] //validuj jeslti je upravene info ve spravnem formatu
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDTO updateRegionRequestDTO)
         {
             //map dto to domain model
@@ -135,6 +141,7 @@ namespace CZTrails.Controllers
 
         [HttpDelete]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
         public async Task <IActionResult> Delete([FromRoute] Guid id)
         {
             //check if region exists

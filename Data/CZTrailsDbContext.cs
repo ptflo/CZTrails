@@ -5,7 +5,7 @@ namespace CZTrails.Data
 {
     public class CZTrailsDbContext : DbContext
     {
-        public CZTrailsDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions) //constructor
+        public CZTrailsDbContext(DbContextOptions<CZTrailsDbContext> dbContextOptions) : base(dbContextOptions) //constructor
         {
             
         }
