@@ -13,6 +13,7 @@ namespace CZTrails.Data
         public DbSet<TrailDifficulty> TrailDifficulties { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Trail> Trails { get; set; }
+        public DbSet<Image> Images { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

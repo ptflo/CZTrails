@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Validations;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace CZTrails.Controllers
 {
@@ -21,18 +22,23 @@ namespace CZTrails.Controllers
         private readonly CZTrailsDbContext dbContext;
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<RegionsController> logger;
 
-        public RegionsController(CZTrailsDbContext dbContext, IRegionRepository regionRepository, IMapper mapper)
+        public RegionsController(CZTrailsDbContext dbContext, IRegionRepository regionRepository, IMapper mapper, ILogger<RegionsController> logger)
         {
             this.dbContext = dbContext;
             this.regionRepository = regionRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         [HttpGet]
         [Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll() //async Task - asynchronous - muze bezet zaroven se zbytkem programu - efficiency
         {
+            logger.LogInformation("GetAll požadavek byl zavolán.");
+            //throw new Exception("test vyjimka getall regions"); //zprava pro konzoli a pro log
+
             //get data from database
             var regionsDomain =await regionRepository.GetAllAsync();
             //map domain models to DTOs
@@ -50,6 +56,7 @@ namespace CZTrails.Controllers
 
             //map domain models to dtos
             var regionsDto = mapper.Map<List<RegionDTO>>(regionsDomain);
+            logger.LogInformation($"GetAll požadavek byl dokončen s těmito daty: {JsonSerializer.Serialize(regionsDomain)}");
 
             //return DTOs
             return Ok(regionsDto);

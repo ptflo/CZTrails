@@ -1,18 +1,33 @@
 using CZTrails.Data;
 using CZTrails.Mappings;
+using CZTrails.Middlewares;
 using CZTrails.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/CZTrailsLog.txt", rollingInterval: RollingInterval.Day)
+    .MinimumLevel.Information() //information - ukazuje vsechny calls, Warning - neukazuje logger.LogInformation, Error - neukazuje inf/warning,...
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
 builder.Services.AddControllers();
+
+builder.Services.AddHttpContextAccessor();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -54,6 +69,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("CZTrailsAuthConn
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>(); //zde menim pouzivane repo (SQLRegion, InMemory,..)
 builder.Services.AddScoped<ITrailRepository, SQLTrailRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles)); //injects automapper, scans for profiles in the given file
 
@@ -94,11 +110,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseStaticFiles(new StaticFileOptions //static files - images,..
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    RequestPath = "/Images" //routing from /Images to using physical path
+});
 
 app.MapControllers();
 
